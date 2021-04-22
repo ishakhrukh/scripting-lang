@@ -19,7 +19,7 @@ AST* parseMathExpr(parser* ps);
 
 AST* parseFunction(parser* ps);
 
-AST* parseExpr(parser* ps);
+AST* parseReturn(parser* ps);
 
-AST* parseCompound(parser* base);
+AST* parseExpr(parser* ps);
 #endif

@@ -21,15 +21,15 @@ typedef struct _token_struct {
         T_POW,
         T_MOD,
         T_EQUAL,
-        // keywords
+        // keywords 9
         T_FUN,
         T_RETURN,
         T_PASS,
-        // data
+        // data 12
         T_NUMERIC,
         T_CHAR,
         T_STRING,
-        // misc
+        // misc 15
         T_TAB,
         T_ID,
         T_EOL

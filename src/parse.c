@@ -24,9 +24,9 @@ AST* parseId(parser* ps) {
     }
     if (ps->tok->type == T_LPAR) {
         variable->type = A_CALL;
-        variable->argcount = 0;
         parserConsume(ps, T_LPAR);
-        if (ps->tok->type == T_ID || ps->tok->type == T_NUMERIC || ps->tok->type == T_STRING) {
+        if (ps->tok->type == T_NUMERIC || ps->tok->type == T_STRING) {
+            variable->children = newvoidvector(sizeof(AST*));
             vvadd(variable->children, parseExpr(ps));
             variable->argcount += 1;
             while (ps->tok->type == T_COMMA) {
@@ -38,19 +38,11 @@ AST* parseId(parser* ps) {
         parserConsume(ps, T_RPAR);
         return variable;
     }
-    if (ps->tok->type == T_EOL) {
-        for (i = 0; i < stack->size; ++i) {
-            temp = stack->data[i];
-            if (strcmp(temp->id, variable->name) == 0) {
-                printf("%s\n", temp->value);
-            }
-        }
-        init();
-    }
     for (i = 0; i < stack->size; ++i) {
         temp = stack->data[i];
         if (strcmp(temp->id, variable->name) == 0) {
-            printf("found match\n");
+            variable->cval = malloc(strlen(temp->value) * sizeof(char));
+            strcpy(variable->cval, temp->value);
         }
     }
     return variable;
@@ -73,25 +65,25 @@ AST* parseFunction(parser* ps) {
     strcpy(function->name, ps->tok->value);
     parserConsume(ps, T_ID);
     function->argcount = 0;
-    parserConsume(ps, T_LPAR);
-    if (ps->tok->type == T_ID) {
-        args = newAST(A_ARG);
-        args->cval = malloc(strlen(ps->tok->value) * sizeof(char));
-        strcpy(args->cval, ps->tok->value);
-        vvadd(function->children, args);
-        parserConsume(ps, T_ID);
-        function->argcount += 1;
-        while (ps->tok->type == T_COMMA) {
-            parserConsume(ps, T_COMMA);
-            args = newAST(A_ARG);
-            args->cval = malloc(strlen(ps->tok->value) * sizeof(char));
-            strcpy(args->cval, ps->tok->value);
+    if (ps->tok->type == T_LPAR) {
+        parserConsume(ps, T_LPAR);
+        if (ps->tok->type == T_ID) {
+            args = newAST(A_PARAM);
+            args->name = ps->tok->value;
             vvadd(function->children, args);
             parserConsume(ps, T_ID);
             function->argcount += 1;
+            while (ps->tok->type == T_COMMA) {
+                parserConsume(ps, T_COMMA);
+                args = newAST(A_PARAM);
+                args->name = ps->tok->value;
+                vvadd(function->children, args);
+                parserConsume(ps, T_ID);
+                function->argcount += 1;
+            }
         }
+        parserConsume(ps, T_RPAR);
     }
-    parserConsume(ps, T_RPAR);
     //////////////////////////////////////////////////
     // TODO: implement args                         //
     // IN PROGRESS                                  //
@@ -109,15 +101,6 @@ AST* parseFunction(parser* ps) {
         vvadd(function->children, parseExpr(_ps));
     }
     return function;
-}
-
-// TEMP FUNCTION:
-AST* parsePass(parser* ps) {
-    AST* str = newAST(A_NULL);
-    str->cval = malloc(4 * sizeof(char));
-    strcpy(str->cval, "pass");
-    parserConsume(ps, T_PASS);
-    return str;
 }
 
 AST* parseExpr(parser* ps) {
@@ -144,18 +127,17 @@ AST* parseExpr(parser* ps) {
         strcpy(ast->cval, ps->tok->value);
         parserConsume(ps, T_STRING);
         return ast;
-    case T_PASS:
-        return parsePass(ps);
+    case T_RETURN:
+        ast = newAST(A_RETURN);
+        parserConsume(ps, T_RETURN);
+        ast->value = parseExpr(ps);
+        return ast;
+    case T_EOL:
+        ast = 0;
+        return ast;
     default:
-        printf("Error: type %d not supported yet\n", ps->tok->type);
+        printf("Error: Unexpected token of type `%d'\n", ps->tok->type);
         init();
     }
     return 0;
-}
-
-AST* parseCompound(parser* base) {
-    AST* compound = newAST(A_COMPOUND);
-    while (base->tok->type != T_EOL)
-        vvadd(compound->children, parseExpr(base));
-    return compound;
 }

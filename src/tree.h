@@ -9,11 +9,12 @@ typedef struct _abstract_syntax_tree {
     struct _abstract_syntax_tree* value, * left, * right;
     enum {
         A_CALL,
-        A_COMPOUND,
         A_ASSIGNMENT,
         A_STATEMENT,
         A_FUNCTION,
         A_ARG,
+        A_PARAM,
+        A_RETURN,
         // DATA
         A_INTEGER,
         A_FLOAT,

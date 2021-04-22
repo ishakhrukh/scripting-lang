@@ -1,2 +1,2 @@
 language = "c"
-run = "cc src/*.c -o main; ./main"
+run = "cc src/*.c -o main; if [ $? -eq 0 ]; then ./main; fi"

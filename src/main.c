@@ -3,6 +3,7 @@
 #include "stack.h"
 #include "token.h"
 #include "interpreter.h"
+#include <signal.h>
 
 void exec(char* line) {
     parser* ps = malloc(sizeof(parser));
@@ -27,6 +28,10 @@ void exec(char* line) {
         }
         init();
     }
+    if (strcmp(line, "$?\n") == 0) {
+        printf("%s\n", _f_retval);
+        init();
+    }
 #pragma endregion DEBUG
     ps->src = line;
     ps->index = 0;
@@ -45,9 +50,16 @@ void init() {
     }
 }
 
+void trap() {
+    printf("\033[1;31mThe shell experienced a crash and had to terminate. If the cause of the crash was unintentional, please report the bug in `issues`.\033[0m\n");
+    exit(1);
+}
+
 int main(int argc, char** argv) {
+    signal(SIGSEGV, trap);
     stack = newvoidvector(sizeof(stack_data));
-    function_stack = newvoidvector(sizeof(function_stack));
-    call_stack = 0; // haven't implemented args fully yet, temp value will be NULL
+    function_stack = newvoidvector(sizeof(AST));
+    _f_retval = malloc(sizeof(char));
+    memset(_f_retval, 0, 1);
     init();
 }

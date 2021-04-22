@@ -18,5 +18,5 @@ void vvadd(voidvector* vv, void* data);
 
 voidvector* stack;
 voidvector* function_stack;
-voidvector* call_stack;
+char* _f_retval;
 #endif

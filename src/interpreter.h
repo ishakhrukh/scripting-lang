@@ -11,7 +11,7 @@ typedef struct _function_struct {
 
 extern void init();
 
-void interpretCompound(AST* ast, void* _struct, short flags);
+void getVal(AST* variable, voidvector* stack);
 
 void interpretAssignment(AST* ast, void* _struct, short flags);
 
