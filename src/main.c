@@ -8,7 +8,8 @@
 void exec(char* line) {
     parser* ps = malloc(sizeof(parser));
     AST* base;
-#pragma region DEBUG
+#pragma region DEBUG    // collapse this block of code so it
+                        // doesn't get in my way
     stack_data* tempvar;
     AST* tempfunc;
     int i;
