@@ -1,15 +1,17 @@
 #ifndef _PARSE_H
 #define _PARSE_H
-#include <stdio.h>
 #include <ctype.h>
 #include "tree.h"
 #include "token.h"
+#include "stack.h"
 
 typedef struct _parser_struct {
     char* src, cc;
     unsigned int index;
     token* tok;
 } parser;
+
+extern size_t _getline(char** lineptr, size_t* __n, FILE* stream);
 
 token* parserConsume(parser* ps, short type);
 

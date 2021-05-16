@@ -1,12 +1,23 @@
 #ifndef _BUILTINS_H
-#define _BUILDINS_H
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+#define _BUILTINS_H
+#include <stdarg.h>
+#include "interpreter.h"
 
-#include "stack.h"
+typedef stack_data sl_param;
 
-void _writefd(char* fd, char* block);
+sl_param* sp_create(char* value, short type);
 
-void _readfd(char* fd);
+int handleBuiltin(AST* call, voidvector* fstack);
+
+void _write(sl_param* dest, sl_param* block);
+
+void _read(sl_param* src);
+
+void _nextLine();
+
+void _memdump();
+
+void builtin_exit(sl_param* status);
+
+void _throw_exception(char* exception, short pe, char* msg, ...);
 #endif

@@ -1,9 +1,9 @@
 #ifndef _TOKEN_H
 #define _TOKEN_H
-#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <stdio.h>
+
+#include "stack.h"
 
 extern void init();
 
@@ -21,18 +21,19 @@ typedef struct _token_struct {
         T_POW,
         T_MOD,
         T_EQUAL,
-        // keywords 9
+        // keywords
         T_FUN,
         T_RETURN,
         T_PASS,
-        // data 12
+        // data
         T_NUMERIC,
         T_CHAR,
         T_STRING,
-        // misc 15
+        // misc
         T_TAB,
         T_ID,
-        T_EOL
+        T_EOL,
+        T_EOF
     } type;
 } token;
 

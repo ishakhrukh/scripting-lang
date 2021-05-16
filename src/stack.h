@@ -1,6 +1,7 @@
 #ifndef _STACK_H
 #define _STACK_H
 #include <stdlib.h>
+#include <stdio.h>
 
 typedef struct _void_vector_struct {
     int size, _elem_size;
@@ -16,7 +17,7 @@ voidvector* newvoidvector(int dataSize);
 
 void vvadd(voidvector* vv, void* data);
 
-voidvector* stack;
-voidvector* function_stack;
-char* _f_retval;
+voidvector* stack, * function_stack;
+char* _last_return;
+FILE* _inputbuf;
 #endif

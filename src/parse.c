@@ -2,7 +2,7 @@
 
 token* parserConsume(parser* ps, short type) {
     if (ps->tok->type != type) {
-        printf("Unexpected token `%s', was expecting token of type %d\n", ps->tok->value, type);
+        printf("Unexpected token '%s', was expecting token of type %d\n", ps->tok->value, type);
         init();
     }
     ps->tok = nextToken(ps->src, &ps->cc, &ps->index);
@@ -13,7 +13,7 @@ AST* parseId(parser* ps) {
     AST* variable = newAST(A_VARIABLE);
     stack_data* temp;
     int i;
-    variable->name = malloc((strlen(ps->tok->value) + 1) * sizeof(char));
+    variable->name = malloc(strlen(ps->tok->value) + 1);
     strcpy(variable->name, ps->tok->value);
     parserConsume(ps, T_ID);
     if (ps->tok->type == T_EQUAL) {
@@ -25,7 +25,7 @@ AST* parseId(parser* ps) {
     if (ps->tok->type == T_LPAR) {
         variable->type = A_CALL;
         parserConsume(ps, T_LPAR);
-        if (ps->tok->type == T_NUMERIC || ps->tok->type == T_STRING) {
+        if (ps->tok->type == T_NUMERIC || ps->tok->type == T_STRING || ps->tok->type == T_ID) {
             variable->children = newvoidvector(sizeof(AST*));
             vvadd(variable->children, parseExpr(ps));
             variable->argcount += 1;
@@ -38,67 +38,79 @@ AST* parseId(parser* ps) {
         parserConsume(ps, T_RPAR);
         return variable;
     }
-    for (i = 0; i < stack->size; ++i) {
-        temp = stack->data[i];
-        if (strcmp(temp->id, variable->name) == 0) {
-            variable->cval = malloc(strlen(temp->value) * sizeof(char));
-            strcpy(variable->cval, temp->value);
-        }
-    }
+    variable->type = A_VARIABLE;
     return variable;
 }
 
-AST* parseMathExpr(parser* ps) {
-    //////////////////////////////////////////////////
-    // TODO: implement math expressions             //
-    // IN PROGRESS                                  //
-    //////////////////////////////////////////////////
-    return 0;
-}
-
 AST* parseFunction(parser* ps) {
-    AST* function = newAST(A_FUNCTION), * args;
+    AST* function = newAST(A_FUNCTION), * param;
     parser* _ps = malloc(sizeof(parser));
-    char buffer[256];
+    // buffer for STDIN
+    char STDIN_buf[256];
+    // buffer for file reading
+    char* buffer = 0;
+    size_t __n = 0;
+
     parserConsume(ps, T_FUN);
-    function->name = malloc((strlen(ps->tok->value) + 1) * sizeof(char));
+    function->name = malloc(strlen(ps->tok->value) + 1);
     strcpy(function->name, ps->tok->value);
     parserConsume(ps, T_ID);
     function->argcount = 0;
     if (ps->tok->type == T_LPAR) {
         parserConsume(ps, T_LPAR);
         if (ps->tok->type == T_ID) {
-            args = newAST(A_PARAM);
-            args->name = ps->tok->value;
-            vvadd(function->children, args);
+            param = newAST(A_PARAM);
+            param->name = ps->tok->value;
+            vvadd(function->children, param);
             parserConsume(ps, T_ID);
             function->argcount += 1;
             while (ps->tok->type == T_COMMA) {
                 parserConsume(ps, T_COMMA);
-                args = newAST(A_PARAM);
-                args->name = ps->tok->value;
-                vvadd(function->children, args);
+                param = newAST(A_PARAM);
+                param->name = ps->tok->value;
+                vvadd(function->children, param);
                 parserConsume(ps, T_ID);
                 function->argcount += 1;
             }
         }
         parserConsume(ps, T_RPAR);
     }
-    //////////////////////////////////////////////////
-    // TODO: implement args                         //
-    // IN PROGRESS                                  //
-    //////////////////////////////////////////////////
     parserConsume(ps, T_EQUAL);
-    for (;;) {
-        printf("... ");
-        fgets(buffer, 256, stdin);
-        if (buffer[0] != '\t')
+    if (_inputbuf != stdin) {
+        while (_getline(&buffer, &__n, _inputbuf) != -1) {
+            if (buffer[0] == 32 && buffer[1] == 32 && buffer[2] == 32 && buffer[3] == 32) {
+                _ps->src = buffer;
+                _ps->index = 1;
+                _ps->cc = buffer[1];
+                _ps->tok = nextToken(_ps->src, &_ps->cc, &_ps->index);
+                vvadd(function->children, parseExpr(_ps));
+                continue;
+            }
+            else if (buffer[0] == '\t') {
+                _ps->src = buffer;
+                _ps->index = 1;
+                _ps->cc = buffer[1];
+                _ps->tok = nextToken(_ps->src, &_ps->cc, &_ps->index);
+                vvadd(function->children, parseExpr(_ps));
+                continue;
+            }
             break;
-        _ps->src = buffer;
-        _ps->index = 1;
-        _ps->cc = buffer[1];
-        _ps->tok = nextToken(_ps->src, &_ps->cc, &_ps->index);
-        vvadd(function->children, parseExpr(_ps));
+        }
+    }
+    else {
+        for (;;) {
+            printf("... ");
+            fgets(STDIN_buf, 256, _inputbuf);
+            if (STDIN_buf[0] != 32 && STDIN_buf[1] != 32) {
+                if (STDIN_buf[0] != '\t')
+                    break;
+            }
+            _ps->src = STDIN_buf;
+            _ps->index = 1;
+            _ps->cc = STDIN_buf[1];
+            _ps->tok = nextToken(_ps->src, &_ps->cc, &          _ps->index);
+            vvadd(function->children, parseExpr(_ps));
+        }
     }
     return function;
 }
@@ -117,13 +129,13 @@ AST* parseExpr(parser* ps) {
         else {
             ast = newAST(A_INTEGER);
         }
-        ast->cval = malloc((strlen(ps->tok->value) + 1) * sizeof(char));
+        ast->cval = malloc(strlen(ps->tok->value) + 1);
         strcpy(ast->cval, ps->tok->value);
         parserConsume(ps, T_NUMERIC);
         return ast;
     case T_STRING:
         ast = newAST(A_STRING);
-        ast->cval = malloc((strlen(ps->tok->value) + 1) * sizeof(char));
+        ast->cval = malloc(strlen(ps->tok->value) + 1);
         strcpy(ast->cval, ps->tok->value);
         parserConsume(ps, T_STRING);
         return ast;

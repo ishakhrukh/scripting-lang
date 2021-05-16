@@ -10,7 +10,7 @@ token* newToken(char* value, short type) {
 token* lexstr(char* src, char* cc, unsigned int* index) {
     char* value = malloc(sizeof(char));
     while (isalpha(*cc) || *cc == '_') {
-        value = realloc(value, (strlen(value) + 1) * sizeof(char));
+        value = realloc(value, strlen(value) + 1);
         strcat(value, (char[]){*cc, 0});
         ++*index;
         *cc = src[*index];
@@ -33,15 +33,11 @@ token* lexdgt(char* src, char* cc, unsigned int* index) {
             }
             ++dot;
         }
-        value = realloc(value, (strlen(value) + 1) * sizeof(char));
+        value = realloc(value, (strlen(value) + 1));
         strcat(value, (char[]){*cc, 0});
         ++*index;
         *cc = src[*index];
     }
-    if (strcmp(value, "fun") == 0)
-        return newToken(value, T_FUN);
-    if (strcmp(value, "pass") == 0)
-        return newToken(value, T_PASS);
     return newToken(value, T_NUMERIC);
 }
 
@@ -52,7 +48,7 @@ token* lexstrliteral(char* src, char* cc, unsigned int* index, char delimiter) {
     *cc = src[*index];
     while (*cc != delimiter) {
         if (*cc == '\\') {
-            value = realloc(value, (strlen(value) + 2) * sizeof(char));
+            value = realloc(value, (strlen(value) + 2));
             ++*index;
             *cc = src[*index];
             strcat(value, (char[]){'\\', *cc, 0});
@@ -60,7 +56,7 @@ token* lexstrliteral(char* src, char* cc, unsigned int* index, char delimiter) {
             *cc = src[*index];
             continue;
         }
-        value = realloc(value, (strlen(value) + 1) * sizeof(char));
+        value = realloc(value, (strlen(value) + 1));
         strcat(value, (char[]){*cc, 0});
         ++*index;
         *cc = src[*index];
@@ -84,15 +80,15 @@ token* lexstrliteral(char* src, char* cc, unsigned int* index, char delimiter) {
                 escape_seq = '\"';
                 break;
             default:
-                printf("bad escape sequence `%s'\n", (char[]){'\\', *cc, 0});
+                printf("bad escape sequence '%s'\n", (char[]){'\\', *cc, 0});
                 init();
             }
             ++i;
-            formatted = realloc(formatted, (strlen(formatted) + 1) * sizeof(char));
+            formatted = realloc(formatted, (strlen(formatted) + 1));
             strcat(formatted, (char[]){escape_seq, 0});
         }
         else {
-            formatted = realloc(formatted, (strlen(formatted) + 2) * sizeof(char));
+            formatted = realloc(formatted, (strlen(formatted) + 2));
             strcat(formatted, (char[]){value[i], 0});
             ++i;
         }
@@ -165,8 +161,14 @@ token* nextToken(char* src, char* cc, unsigned int* index) {
             ++*index;
             *cc = src[*index];
             return newToken("=", T_EQUAL);
+        case 0:
+            if (_inputbuf != stdin) {
+                ++*index;
+                *cc = src[*index];
+                return newToken(0, T_EOF);
+            }
         default:
-            printf("Error: Unexpected character `%c'\n", *cc);
+            printf("Error: Unexpected character '%c',  ascii value: %d\n", *cc, *cc);
             init();
         }
     }
