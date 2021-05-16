@@ -113,7 +113,7 @@ void _read(sl_param* src) {
         _throw_exception("IllegalArgumentException", 0, "Invalid argument passed to function `_read(src)` where `src` is `string`\n");
     stream = fopen(src->value, "rb");
     if (stream == 0)
-        _throw_exception("Error.IOException", 1,  "An exception occoured while trying to open file '%s'\n%s: ", src->value, src->value);
+        _throw_exception("IOException", 1,  "An exception occoured while trying to open file '%s'\n%s: ", src->value, src->value);
     fseek(stream, 0, SEEK_END);
     size = ftell(stream);
     free(_last_return);
