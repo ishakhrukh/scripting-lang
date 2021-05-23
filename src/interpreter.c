@@ -1,5 +1,25 @@
 #include "interpreter.h"
 
+void interpret(AST* ast, void* _v) {
+    if (ast == 0)
+        goto end;
+    switch (ast->type) {
+    case A_CALL:
+        interpretCall(ast, _v);
+        break;
+    case A_ASSIGNMENT:
+        interpretAssignment(ast, _v);
+        break;
+    case A_FUNCTION:
+        vvadd(function_stack, ast);
+        break;
+    default:
+        printf("Uh-oh: No support for ast of type %d\n", ast->type);
+        init();
+    }
+end:;
+}
+
 void getVal(AST* variable, voidvector* _stack) {
     stack_data* var;
     char* vname;
@@ -133,24 +153,4 @@ void interpretCall(AST* call, voidvector* _ps) {
         }
     _throw_exception("ErrorDefinitionNotFoundException", 0, "Function '%s' is not defined.\n", call->name);
 done_at_ic:;
-}
-
-void interpret(AST* ast, void* _v) {
-    if (ast == 0)
-        goto end;
-    switch (ast->type) {
-    case A_CALL:
-        interpretCall(ast, _v);
-        break;
-    case A_ASSIGNMENT:
-        interpretAssignment(ast, _v);
-        break;
-    case A_FUNCTION:
-        vvadd(function_stack, ast);
-        break;
-    default:
-        printf("Uh-oh: No support for ast of type %d\n", ast->type);
-        init();
-    }
-end:;
 }

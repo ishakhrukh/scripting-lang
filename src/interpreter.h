@@ -16,11 +16,11 @@ typedef struct _function_struct {
 
 extern void init();
 
+void interpret(AST* ast, void* _struct);
+
 void getVal(AST* variable, voidvector* stack);
 
 void interpretAssignment(AST* ast, void* _struct);
 
 void interpretCall(AST* function, voidvector* ps);
-
-void interpret(AST* ast, void* _struct);
 #endif

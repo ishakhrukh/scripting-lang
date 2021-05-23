@@ -103,7 +103,6 @@ void _write(sl_param* dest, sl_param* block) {
     ->value), stream);
         fclose(stream);
     }
-    init();
 }
 
 void _read(sl_param* src) {

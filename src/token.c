@@ -8,7 +8,7 @@ token* newToken(char* value, short type) {
 }
 
 token* lexstr(char* src, char* cc, unsigned int* index) {
-    char* value = malloc(sizeof(char));
+    char* value = calloc(1, sizeof(char));
     while (isalpha(*cc) || *cc == '_') {
         value = realloc(value, strlen(value) + 1);
         strcat(value, (char[]){*cc, 0});

@@ -20,7 +20,7 @@ void exec(char* line) {
     ps->index = 0;
     ps->cc = line[0];
     ps->tok = nextToken(ps->src, &ps->cc, &ps->index);
-    base = parseExpr(ps);
+    base = parse(ps);
     interpret(base, 0);
 }
 

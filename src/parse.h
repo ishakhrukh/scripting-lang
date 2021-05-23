@@ -13,7 +13,9 @@ typedef struct _parser_struct {
 
 extern size_t _getline(char** lineptr, size_t* __n, FILE* stream);
 
-token* parserConsume(parser* ps, short type);
+AST* parse(parser* ps);
+
+token* expect(parser* ps, short type);
 
 AST* parseId(parser* ps);
 
@@ -22,6 +24,4 @@ AST* parseMathExpr(parser* ps);
 AST* parseFunction(parser* ps);
 
 AST* parseReturn(parser* ps);
-
-AST* parseExpr(parser* ps);
 #endif
