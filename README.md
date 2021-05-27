@@ -1,7 +1,7 @@
 # scripting_lang
 A scripting language inspired by python.
 ## btw
-I created `scripting-lang` to excercise my C skills and it isn't meant to be used as an actual scripting language because of how incapable it is.
+I created `scripting-lang` to exercise my C skills and it isn't meant to be used as an actual scripting language because of how incapable it is.
 ## Notice:
 Most interpreters work by parsing the input into *abstract syntax trees*, then generating bytecode from it, which gets interpreted by a virtual machine. Currently, this interpreter directly executes the syntax trees instead of generating bytecode, which may seem faster, but in most cases, it's slower. Therefore, I will be working on adding a bytecode generator and a VM, which means re-writing the **whole interpreter section**, so there will be no or few updates for the following month.
 ## What's New in Alpha Version 0.2.1
