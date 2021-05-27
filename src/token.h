@@ -13,6 +13,8 @@ typedef struct _token_struct {
         //symbols
         T_LPAR,
         T_RPAR,
+        T_LBRACK,
+        T_RBRACK,
         T_COMMA,
         T_PLUS,
         T_MINUS,
@@ -21,10 +23,17 @@ typedef struct _token_struct {
         T_POW,
         T_MOD,
         T_EQUAL,
+        T_COLON,
         // keywords
         T_FUN,
         T_RETURN,
         T_PASS,
+        T_FOR,
+        T_IN,
+        T_TO,
+        T_DOWNTO,
+        T_STEP,
+        T_BREAK,
         // data
         T_NUMERIC,
         T_CHAR,

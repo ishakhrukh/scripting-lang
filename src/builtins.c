@@ -48,9 +48,24 @@ int handleBuiltin(AST* call, voidvector* fstack) {
         return 1;
     }
     else if (strcmp(call->name, "_nextLine") == 0) {
-        if (call->argcount != 0)
-            _throw_exception("IllegalArgumentException", 0, "Too many arguments passed to function `_nextLine()`, which takes 0 argument(s) (%d arguments were passed).\n", call->argcount);
-        _nextLine();
+        if (call->argcount == 0)
+            _nextLine(0);
+        else if (call->argcount == 1) {
+            args = malloc(sizeof(sl_param*));
+            arg = call->children->data[0];
+            if (arg->type == A_VARIABLE) {
+                getVal(arg, fstack);
+                args[0] = sp_create(arg->value->cval,arg->value->type);
+            }
+            else
+                args[0] = sp_create(arg->cval, arg->type);
+            _nextLine(args[0]);
+            free(args[0]);
+            free(args);
+        }
+        else {
+            _throw_exception("IllegalArgumentException", 0, "Too many arguments passed to function `_nextLine([optional]prompt)`, which takes 1 optional argument(s) (%d arguments were passed).\n", call->argcount);
+        }
         return 1;
     }
     else if (strcmp(call->name, "_memdump") == 0) {
@@ -80,9 +95,22 @@ int handleBuiltin(AST* call, voidvector* fstack) {
 
 void _write(sl_param* dest, sl_param* block) {
     FILE* stream;
-    /*if (block->type != A_STRING) {
-        _throw_exception("IllegalArgumentException", 0, "Invalid argument(s) passed to function `_write(dest, block)`, where `dest` is `int` or `string`, and `block` is `string`\n");
-    }*/
+    sl_param* list_elem;
+    char* output;
+    int i;
+    if (block->value == 0) {
+        printf("list\n");
+        output = malloc(1);
+        strcpy(output, "[");
+        for (i = 0; i < block->elements->size; ++i) {
+            list_elem = block->elements->data[i];
+            output = realloc(output, strlen(output) + strlen(list_elem->value) + 3);
+            strcat(output, strcat(list_elem->value, ", "));
+        }
+        output = realloc(output, 2);
+        strcat(output, "]");
+        printf("output: %s\n", output),exit(0);
+    }
     if (dest->type == A_INTEGER) {
         switch (dest->type) {
         case 1:
@@ -122,29 +150,47 @@ void _read(sl_param* src) {
     fclose(stream);
 }
 
-void _nextLine() {
+void _nextLine(sl_param* prompt) {
     char* buffer, c;
     size_t len = 0;
+    if (prompt != 0) {
+        if (prompt->type != A_STRING)
+            _throw_exception("IllegalArgumentException", 0, "Invalid argument passed to function `_nextLine([optional]prompt` where `prompt` is `string`\n");
+        printf("%s", prompt->value);
+    }
     for (c = fgetc(stdin); c != '\n'; c = fgetc(stdin)) {
         len += 1;
         buffer = realloc(buffer, len);
         buffer[len - 1] = c;
     }
     buffer[len] = 0;
-    returns(buffer);
+    RETURNS(buffer, A_STRING);
 }
 
 void _memdump() {
-    stack_data* var;
+    stack_data* var, * list_elem;
     char* value;
-    int i;
+    int i, j;
+    printf("variables on stack: %d\n", stack->size);
     for (i = 0; i < stack->size; ++i) {
         var = stack->data[i];
-        printf("[%s : ", var->id);
+        printf("%-20s :  ", var->id);
+        if (var->elements) {
+            printf("[");
+            for (j = 0; j < var->elements->size; ++j) {
+                list_elem = var->elements->data[j];
+                if (list_elem->type == A_STRING)
+                    printf("'%s', ", list_elem->value);
+                else
+                    printf("%s, ", list_elem->value);
+            }
+            printf("\b\b]\n");
+            continue;
+        }
         if (var->type == A_STRING)
-            printf("'%s']\n", var->value);
+            printf("'%s'\n", var->value);
         else
-            printf("%s]\n", var->value);
+            printf("%s\n", var->value);
     }
 }
 

@@ -15,10 +15,24 @@ token* lexstr(char* src, char* cc, unsigned int* index) {
         ++*index;
         *cc = src[*index];
     }
+    // function related
     if (strcmp(value, "fun") == 0)
         return newToken(value, T_FUN);
-    if (strcmp(value, "return") == 0)
+    else if (strcmp(value, "return") == 0)
         return newToken(value, T_RETURN);
+    // loop related
+    else if (strcmp(value, "for") == 0)
+        return newToken(value, T_FOR);
+    else if (strcmp(value, "in") == 0)
+        return newToken(value, T_IN);
+    else if (strcmp(value, "to") == 0)
+        return newToken(value, T_TO);
+    else if (strcmp(value, "downto") == 0)
+        return newToken(value, T_DOWNTO);
+    else if (strcmp(value, "step") == 0)
+        return newToken(value, T_STEP);
+    else if (strcmp(value, "break") == 0)
+        return newToken(value, T_BREAK);
     return newToken(value, T_ID);
 }
 
@@ -116,10 +130,6 @@ token* nextToken(char* src, char* cc, unsigned int* index) {
             ++*index;
             *cc = src[*index];
             return newToken("\n", T_EOL);
-        case '\t':
-            ++*index;
-            *cc = src[*index];
-            return newToken("\t", T_TAB);
         case '(':
             ++*index;
             *cc = src[*index];
@@ -128,6 +138,14 @@ token* nextToken(char* src, char* cc, unsigned int* index) {
             ++*index;
             *cc = src[*index];
             return newToken(")", T_RPAR);
+        case '[':
+            ++*index;
+            *cc = src[*index];
+            return newToken("[", T_LBRACK);
+        case ']':
+            ++*index;
+            *cc = src[*index];
+            return newToken("]", T_RBRACK);
         case ',':
             ++*index;
             *cc = src[*index];
@@ -161,6 +179,10 @@ token* nextToken(char* src, char* cc, unsigned int* index) {
             ++*index;
             *cc = src[*index];
             return newToken("=", T_EQUAL);
+        case ':':
+            ++*index;
+            *cc = src[*index];
+            return newToken(":", T_COLON);
         case 0:
             if (_inputbuf != stdin) {
                 ++*index;

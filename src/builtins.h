@@ -13,7 +13,7 @@ void _write(sl_param* dest, sl_param* block);
 
 void _read(sl_param* src);
 
-void _nextLine();
+void _nextLine(sl_param* prompt);
 
 void _memdump();
 

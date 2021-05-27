@@ -13,3 +13,9 @@ void vvadd(voidvector* vv, void* data) {
     vv->data = realloc(vv->data, vv->size * vv->_elem_size);
     vv->data[vv->size - 1] = data;
 }
+
+void vvpop(voidvector* vv, int index) {
+    vv->data[index] = vv->data[vv->size - 1];
+    vv->size -= 1;
+    vv->data = realloc(vv->data, vv->size);
+}
